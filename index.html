@@ -7,10 +7,598 @@
 
   <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css"
     integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5" crossorigin="anonymous">
+
+  <style>
+    body {
+      padding: 1em;
+    }
+
+    td {
+      vertical-align: top;
+    }
+  </style>
+
+  <script>
+    window.app = (function(){
+      // PREAMBLE
+      var lib = {};
+      
+      // LOOKUPS
+      var shards = [];
+
+      // HELPER METHODS
+      var find = (findor) => {
+        var result = document.querySelector(findor);
+        if (!result) {
+          window.alert("No item matching: "+findor);
+        } else {
+          result.on = (eventArg, listener) => {
+            var events = Array.isArray(eventArg) ? eventArg : [eventArg];
+            events.forEach(event => {result.addEventListener(event, listener)});
+          };
+        }
+        return result;
+      };
+      lib.find = find;
+      var select = (findor) => {
+        var results = document.querySelectorAll(findor);
+        results.forEach(element => {
+          element.on = (eventArg, listener) => {
+            var events = Array.isArray(eventArg) ? eventArg : [eventArg];
+            events.forEach(event => {element.addEventListener(event, listener)});
+          };
+        });
+        return results;
+      };
+      lib.select = select;
+
+      // HTML HELPER METHODS
+      var newElement = (type, text) => {
+        var element = document.createElement(type);
+        if (text) {
+          var textElement = document.createTextNode(text);
+          element.appendChild(textElement);
+        }
+        return element;
+      };
+
+      // COST HELPER METHODS
+      var coreCosts = [
+        50, 100, 150, 200, 250, 
+        50, 100, 150, 200, 250, 
+        50, 100, 150, 200, 250, 
+        50, 150, 250,
+        50, 150, 250,
+        50, 150, 250,
+        50, 150, 250,
+        50, 150, 250,
+        300, 300, 300, 300, 300, 
+        300, 300, 300, 300, 300, 
+        300, 300, 300, 300, 300, 
+        300,
+        300,
+        300,
+        300,
+        300,
+        350, 350, 400, 400, 400,
+        350, 350, 400, 400, 400,
+        350, 350, 400, 400, 400,
+        400,
+        400,
+        400,
+        400,
+        400]
+      var shardCosts = [
+        50, 100, 150, 200, 250, 
+        50, 100, 150, 200, 250, 
+        50, 100, 150, 200, 250, 
+        50, 100, 150,
+        50, 100, 150, 
+        50, 100, 150,
+        50, 100, 150, 
+        50, 100, 150];
+      var calculateCosts = (matrix, level) => {
+        return (level < 1) ? 0 : Array(Math.min(level, matrix.length))
+          .fill()
+          .map((_, i) => matrix[i])
+          .reduce((memo, value) => memo + value);
+      };
+      
+      // HELPERS
+      lib.updateCost = () => {
+        // Select Values
+        var start = find("#cost-start").value;
+        var end = find("#cost-end").value;
+
+        // Calculate shards
+        var shards = calculateCosts(shardCosts, end) - calculateCosts(shardCosts, start);
+        var cores = calculateCosts(coreCosts, end - 30) - calculateCosts(coreCosts, start - 30);
+
+        // Set the Results
+        find("#cost-shards").innerHTML = shards + " shards";
+        find("#cost-cores").innerHTML = cores + " cores";
+      };
+      var compareUpdateItem = (item1, item2) => {
+        var numericComparison = item2[0] - item1[0];
+        if (numericComparison === 0) {
+          numericComparison = item1[1].localeCompare(item2[1]);
+        }
+        return numericComparison;
+      };
+      lib.updateIncome = () => {
+        var shardItems = [[30, "Idle"]];
+        var coreItems = [[16.2, "Idle"]];
+        
+        select("#income-calculator select").forEach(element => {
+          var name = find("[for='"+element.id+"']").innerHTML;
+          
+          element.value.split(",").forEach(value => {
+            var numericValue = parseFloat(value);
+            if (value.endsWith("s")) {
+              shardItems.push([numericValue, name]);
+            } else if (value.endsWith("c")) {
+              coreItems.push([numericValue, name]);
+            } else {
+              window.alert("Invalid calculator value for #"+element.id+": "+value);
+            }
+          });
+        });
+
+        shardItems.sort(compareUpdateItem);
+        coreItems.sort(compareUpdateItem);
+
+        var shardCount = shardItems.map(tuple => tuple[0]).reduce((memo, value) => memo + value).toFixed(1);
+        var shard30Rate = Math.round(3750.0 / shardCount);
+        var coreCount = coreItems.map(tuple => tuple[0]).reduce((memo, value) => memo + value).toFixed(1);
+        var core41Rate = Math.round(1650.0 / coreCount);
+        var core60Rate = Math.round(4500.0 / coreCount);
+
+        find("#shard-summary").innerHTML = "e30 per "+shard30Rate+" days<br/>"+shardCount+" Shards per day";
+        find("#shard-list").replaceChildren(...shardItems.map(item => newElement("li", item[0]+" "+item[1])));
+
+        find("#core-summary").innerHTML = "e41 per "+core41Rate+" days, e60 per "+core60Rate+" days<br/>"+coreCount+" cores per day";
+        find("#core-list").replaceChildren(...coreItems.map(item => newElement("li", item[0]+" "+item[1])));
+      };
+
+      // LOCAL STORAGE
+      lib.readLocal = (key)  => {
+        const localStorage = window.localStorage;
+        if (localStorage) {
+          return JSON.parse(localStorage.getItem(key));
+        } else {
+          window.console.warn("No local storage.");
+        }
+      };
+      lib.writeLocal = (key, value)  => {
+        const localStorage = window.localStorage;
+        if (localStorage) {
+          window.console.log("Writing: " + JSON.stringify(value));
+          localStorage.setItem(key, JSON.stringify(value));
+        }
+      };
+
+      // INIT
+      lib.init = () => {
+        select("#cost-calculator input").forEach(element => element.on(["change", "keyup"], lib.updateCost));
+        select("#income-calculator select").forEach(element => element.on("change", lib.updateIncome));
+      };
+
+      // Return the helper object
+      return lib;
+    })();
+  </script>
 </head>
 
-<body>
-  <h1>AFK Toolbox by AkagiPanda</h1>
+<body onLoad="app.init();" width="100%">
+  <div class="pure-g">
+    <!-- CALCULATORS -->
+    <div class="pure-u-1-2">
+      <div class="pure-g">
+        <div class="pure-u-1">
+          <h4>Cost Calculator</h4>
+          <form class="pure-form" id="cost-calculator">
+            From e<input type="number" id="cost-start" min="0" max="100" value="0" />
+            to e<input type="number" id="cost-end" min="0" max="100" value="60" />
+            is <span id="cost-shards">3750 Shards</span>
+            and <span id="cost-cores">4500 Cores</span>.
+          </form>
+          <i>NOTE: This calculator is currently using a naive progression that assumes all major nodes are done before
+            minor. It will be updated to intelligently calculate major/minor breakpoints.</i>
+        </div>
+        <div class="pure-u-1">
+          <h4>Income Calculator</h4>
+          <form class="pure-form" id="income-calculator">
+            <fieldset>
+              <legend>Free to Play</legend>
+              <div class="pure-g">
+                <div class="pure-u-1-3">
+                  <label for="shard-purchases">Shard Purchases</label><br />
+                  <select id="shard-purchases" class="pure-input-1-2">
+                    <option value="0s">0</option>
+                    <option value="20s">1</option>
+                    <option value="40s">2</option>
+                    <option value="60s" selected>3</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="fast-forwards">Fast Forwards</label><br />
+                  <select id="fast-forwards" class="pure-input-1-2">
+                    <option value="0s,0c">0</option>
+                    <option value="2.5s,1.25c">1</option>
+                    <option value="5s,2.5c">2</option>
+                    <option value="7.5s,3.75c">3</option>
+                    <option value="10s,5c">4</option>
+                    <option value="12.5s,6.25c" selected>5</option>
+                    <option value="15s,7.5c">6</option>
+                    <option value="17.5s,8.75c">7</option>
+                    <option value="20s,10c">8</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="misty-valley-shards">Misty Valley Shards</label><br />
+                  <select id="misty-valley-shards" class="pure-input-1-2">
+                    <option value="0s" selected>0</option>
+                    <option value="3.333s">1</option>
+                    <option value="6.666s">2</option>
+                    <option value="10s">3</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="core-purchases">Core Purchases</label><br />
+                  <select id="core-purchases" class="pure-input-1-2">
+                    <option value="0c" selected>0</option>
+                    <option value="10c">1</option>
+                    <option value="20c">2</option>
+                    <option value="30c">3</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="dismal-lab">Dismal Lab</label><br />
+                  <select id="dismal-lab" class="pure-input-1-2">
+                    <option value="35s,35c" selected>Yes</option>
+                    <option value="0">No</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="misty-valley-cores">Misty Valley Cores</label><br />
+                  <select id="misty-valley-cores" class="pure-input-1-2">
+                    <option value="0c">0</option>
+                    <option value="6.666c">1</option>
+                    <option value="13.333c">2</option>
+                    <option value="20c" selected>3</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="cursed-realm">Cursed Realm</label><br />
+                  <select id="cursed-realm" class="pure-input-1-2">
+                    <option value="0s,0c" selected>No</option>
+                    <option value="14s,0c">100%</option>
+                    <option value="29s,0c">75%</option>
+                    <option value="43s,1c">50%</option>
+                    <option value="57s,9c">35%</option>
+                    <option value="57s,14c">23%</option>
+                    <option value="57s,21c">12%</option>
+                    <option value="57s,23c">10%</option>
+                    <option value="57s,24c">8%</option>
+                    <option value="57s,26c">6%</option>
+                    <option value="57s,29c">5%</option>
+                    <option value="57s,31c">4%</option>
+                    <option value="57s,34c">3%</option>
+                    <option value="57s,37c">2%</option>
+                    <option value="57s,43c">1%</option>
+                  </select>
+                </div>
+              </div>
+              <legend>Purchased</legend>
+              <div class="pure-g">
+                <div class="pure-u-1-3">
+                  <label for="monthly-card">Monthly Card</label><br />
+                  <select id="monthly-card" class="pure-input-1-2">
+                    <option value="0s" selected>No</option>
+                    <option value="45s">VIP &lt; 12</option>
+                    <option value="60s">VIP &gt;= 12</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="noble-society-shards">Noble Society (Shards)</label><br />
+                  <select id="noble-society-shards" class="pure-input-1-2">
+                    <option value="0s" selected>No</option>
+                    <option value="27s">Free</option>
+                    <option value="116s">Paid</option>
+                    <option value="89s">Deluxe</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">&nbsp;</div>
+                <div class="pure-u-1-3">
+                  <label for="deluxe-monthly-card">Deluxe Monthly Card</label><br />
+                  <select id="deluxe-monthly-card" class="pure-input-1-2">
+                    <option value="0c" selected>No</option>
+                    <option value="12c">VIP &lt; 12</option>
+                    <option value="24c">VIP &gt;= 12</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="noble-society-cores">Noble Society (Cores)</label><br />
+                  <select id="noble-society-cores" class="pure-input-1-2">
+                    <option value="0c" selected>No</option>
+                    <option value="16c">Free</option>
+                    <option value="71c">Paid</option>
+                    <option value="54c">Deluxe</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+        <!-- RESULTS -->
+        <div class="pure-u-1">
+          <div class="pure-g">
+            <!-- RESULTS / SHARDS -->
+            <div class="pure-u-1-2">
+              <h4>Shards</h4>
+              <div id="shard-summary">
+                e30 per 27 days<br/>
+                137.5 Shards per day
+              </div>
+              <ul id="shard-list">
+                <li>60 Shard Purchases</li>
+                <li>35 Dismal Lab</li>
+                <li>30 Idle</li>
+                <li>12.5 Fast Forwards</li>
+                <li>0 Cursed Realm</li>
+                <li>0 Misty Valley Shards</li>
+                <li>0 Monthly Card</li>
+                <li>0 Noble Society (Shards)</li>
+              </ul>
+            </div>
+            <!-- RESULTS / CORES -->
+            <div class="pure-u-1-2">
+              <h4>Cores</h4>
+              <div id="core-summary">
+                e41 per 21 days, e60 per 58 days<br/>
+                77.45 cores per day
+              </div>
+              <ul id="core-list">
+                <li>35 Dismal Lab</li>
+                <li>20 Misty Valley Cores</li>
+                <li>16.2 Idle</li>
+                <li>6.25 Fast Forwards</li>
+                <li>0 Core Purchases</li>
+                <li>0 Cursed Realm</li>
+                <li>0 Deluxe Monthly Card</li>
+                <li>0 Noble Society (Cores)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COSTS -->
+    <div class="pure-u-1-2">
+      <div class="pure-g">
+        <div class="pure-u-1">
+          <h4>Credits</h4>
+          <p>
+            Thanks to <a href="https://www.reddit.com/user/inSeason/">inSeason</a>
+            and <a href="https://www.afk-analytica.com/">AFK Analytica</a> for all of their contributions to the game</a>.
+          </p>
+          <p>
+            All data for this utility sourced from the 
+            <a href="https://www.reddit.com/r/afkarena/comments/rzp6ws/aa_engraving_income_ref_inseas0n_v180/"
+              >[AA] Engraving Income Ref. - inSeas0n- v1.80</a> Reddit post.
+          </p>
+        </div>
+        <div class="pure-u-1-2">
+          <h4>Common Benchmark Costs</h4>
+          <table class="pure-table pure-table-striped">
+            <thead>
+              <tr>
+                <th>Engraving</th>
+                <th>Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>e0 to e30</td>
+                <td>3,750 Shards</td>
+              </tr>
+              <tr>
+                <td>e30 to e60</td>
+                <td>4,500 Cores</td>
+              </tr>
+              <tr>
+                <td>e60 to e80</td>
+                <td>6,000 Cores</td>
+              </tr>
+              <tr>
+                <td>e80 to e100</td>
+                <td>7,700 Cores</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pure-u-1-2">
+          <h4>&nbsp;</h4>
+          <table class="pure-table pure-table-striped">
+            <thead>
+              <tr>
+                <th>Engraving</th>
+                <th>Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>e30 to e41</td>
+                <td>1,650 Cores</td>
+              </tr>
+              <tr>
+                <td>e41 to e60</td>
+                <td>2,850 Cores</td>
+              </tr>
+              <tr>
+                <td>e60 to e65</td>
+                <td>1,500 Cores</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pure-u-1-3">
+          <h4>Major Glyph Costs</h4>
+          <table class="pure-table pure-table-striped">
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>50 Shards</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>100 Shards</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>150 Shards</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>200 Shards</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>250 Shards</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>50 Cores</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>100 Cores</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>150 Cores</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>200 Cores</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>250 Cores</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pure-u-1-3">
+          <h4>&nbsp;</h4>
+          <table class="pure-table pure-table-striped">
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>11</td>
+                <td>300 Cores</td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>300 Cores</td>
+              </tr>
+              <tr>
+                <td>13</td>
+                <td>300 Cores</td>
+              </tr>
+              <tr>
+                <td>14</td>
+                <td>300 Cores</td>
+              </tr>
+              <tr>
+                <td>15</td>
+                <td>300 Cores</td>
+              </tr>
+              <tr>
+                <td>16</td>
+                <td>350 Cores</td>
+              </tr>
+              <tr>
+                <td>17</td>
+                <td>350 Cores</td>
+              </tr>
+              <tr>
+                <td>18</td>
+                <td>400 Cores</td>
+              </tr>
+              <tr>
+                <td>19</td>
+                <td>400 Cores</td>
+              </tr>
+              <tr>
+                <td>20</td>
+                <td>400 Cores</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pure-u-1-3">
+          <h4>Minor Glyph Costs</h4>
+          <table class="pure-table pure-table-striped">
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>50 Shards</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>100 Shards</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>150 Shards</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>50 Cores</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>150 Cores</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>250 Cores</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>300 Cores</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>400 Cores</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>
