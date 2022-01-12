@@ -1,210 +1,173 @@
 <!DOCTYPE html>
-<html>
+<html manifest="manifest.mf">
 
 <head>
-  <title>AFK Toolbox by AkagiPanda</title>
+  <title>AFK Engravings Calculator by AkagiPanda</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css"
     integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/grids-responsive-min.css">
 
   <style>
     body {
       padding: 1em;
     }
-
     td {
       vertical-align: top;
+    }
+
+    @media screen and (min-width: 0em) {
+      body {
+        font-size: 0.8rem;
+      }
+    }
+    @media screen and (min-width: 35.5em) {
+      body {
+        font-size: 0.8rem;
+      }
+    }
+    @media screen and (min-width: 48em) {
+      body {
+        font-size: 1rem;
+      }
+    }
+    @media screen and (min-width: 64em) {
+      body {
+        font-size: 0.9rem;
+      }
+    }
+    @media screen and (min-width: 80em) {
+      body {
+        font-size: 1rem;
+      }
     }
   </style>
 
   <script>
     window.app = (function(){
-      // PREAMBLE
-      var lib = {};
-      
-      // LOOKUPS
-      var shards = [];
+    // PREAMBLE
+    var lib = {};
+    
+    // HELPER METHODS
+    var find = (findor) => {
+      var result = document.querySelector(findor);
+      if (!result) {
+        window.alert("No item matching: "+findor);
+      } else {
+        result.on = (eventArg, listener) => {
+          var events = Array.isArray(eventArg) ? eventArg : [eventArg];
+          events.forEach(event => {result.addEventListener(event, listener)});
+        };
+      }
+      return result;
+    };
+    lib.find = find;
+    var select = (findor) => {
+      var results = document.querySelectorAll(findor);
+      results.forEach(element => {
+        element.on = (eventArg, listener) => {
+          var events = Array.isArray(eventArg) ? eventArg : [eventArg];
+          events.forEach(event => {element.addEventListener(event, listener)});
+        };
+      });
+      return results;
+    };
+    lib.select = select;
 
-      // HELPER METHODS
-      var find = (findor) => {
-        var result = document.querySelector(findor);
-        if (!result) {
-          window.alert("No item matching: "+findor);
-        } else {
-          result.on = (eventArg, listener) => {
-            var events = Array.isArray(eventArg) ? eventArg : [eventArg];
-            events.forEach(event => {result.addEventListener(event, listener)});
-          };
-        }
-        return result;
-      };
-      lib.find = find;
-      var select = (findor) => {
-        var results = document.querySelectorAll(findor);
-        results.forEach(element => {
-          element.on = (eventArg, listener) => {
-            var events = Array.isArray(eventArg) ? eventArg : [eventArg];
-            events.forEach(event => {element.addEventListener(event, listener)});
-          };
-        });
-        return results;
-      };
-      lib.select = select;
+    // HTML HELPER METHODS
+    var newElement = (type, text) => {
+      var element = document.createElement(type);
+      if (text) {
+        var textElement = document.createTextNode(text);
+        element.appendChild(textElement);
+      }
+      return element;
+    };
 
-      // HTML HELPER METHODS
-      var newElement = (type, text) => {
-        var element = document.createElement(type);
-        if (text) {
-          var textElement = document.createTextNode(text);
-          element.appendChild(textElement);
-        }
-        return element;
-      };
-
-      // COST HELPER METHODS
-      var coreCosts = [
-        50, 100, 150, 200, 250, 
-        50, 100, 150, 200, 250, 
-        50, 100, 150, 200, 250, 
-        50, 150, 250,
-        50, 150, 250,
-        50, 150, 250,
-        50, 150, 250,
-        50, 150, 250,
-        300, 300, 300, 300, 300, 
-        300, 300, 300, 300, 300, 
-        300, 300, 300, 300, 300, 
-        300,
-        300,
-        300,
-        300,
-        300,
-        350, 350, 400, 400, 400,
-        350, 350, 400, 400, 400,
-        350, 350, 400, 400, 400,
-        400,
-        400,
-        400,
-        400,
-        400]
-      var shardCosts = [
-        50, 100, 150, 200, 250, 
-        50, 100, 150, 200, 250, 
-        50, 100, 150, 200, 250, 
-        50, 100, 150,
-        50, 100, 150, 
-        50, 100, 150,
-        50, 100, 150, 
-        50, 100, 150];
-      var calculateCosts = (matrix, level) => {
-        return (level < 1) ? 0 : Array(Math.min(level, matrix.length))
-          .fill()
-          .map((_, i) => matrix[i])
-          .reduce((memo, value) => memo + value);
-      };
-      
-      // HELPERS
-      lib.updateCost = () => {
-        // Select Values
-        var start = find("#cost-start").value;
-        var end = find("#cost-end").value;
-
-        // Calculate shards
-        var shards = calculateCosts(shardCosts, end) - calculateCosts(shardCosts, start);
-        var cores = calculateCosts(coreCosts, end - 30) - calculateCosts(coreCosts, start - 30);
-
-        // Set the Results
-        find("#cost-shards").innerHTML = shards + " shards";
-        find("#cost-cores").innerHTML = cores + " cores";
-      };
-      var compareUpdateItem = (item1, item2) => {
-        var numericComparison = item2[0] - item1[0];
-        if (numericComparison === 0) {
-          numericComparison = item1[1].localeCompare(item2[1]);
-        }
-        return numericComparison;
-      };
-      lib.updateIncome = () => {
-        var shardItems = [[30, "Idle"]];
-        var coreItems = [[16.2, "Idle"]];
+    // HELPERS
+    var compareUpdateItem = (item1, item2) => {
+      var numericComparison = item2[0] - item1[0];
+      if (numericComparison === 0) {
+        numericComparison = item1[1].localeCompare(item2[1]);
+      }
+      return numericComparison;
+    };
+    lib.update = () => {
+      // Calculate income
+      var shardItems = [[30, "Idle"]];
+      var coreItems = [[16.2, "Idle"]];
+      select("#income-calculator select").forEach(element => {
+        var name = find("[for='"+element.id+"']").innerHTML;
         
-        select("#income-calculator select").forEach(element => {
-          var name = find("[for='"+element.id+"']").innerHTML;
-          
-          element.value.split(",").forEach(value => {
-            var numericValue = parseFloat(value);
-            if (value.endsWith("s")) {
-              shardItems.push([numericValue, name]);
-            } else if (value.endsWith("c")) {
-              coreItems.push([numericValue, name]);
-            } else {
-              window.alert("Invalid calculator value for #"+element.id+": "+value);
-            }
-          });
+        element.value.split(",").forEach(value => {
+          var numericValue = parseFloat(value);
+          if (value.endsWith("s")) {
+            shardItems.push([numericValue, name]);
+          } else if (value.endsWith("c")) {
+            coreItems.push([numericValue, name]);
+          } else {
+            window.alert("Invalid calculator value for #"+element.id+": "+value);
+          }
         });
+      });
+      shardItems.sort(compareUpdateItem);
+      coreItems.sort(compareUpdateItem);
+      var shardIncome = shardItems.map(tuple => tuple[0]).reduce((memo, value) => memo + value).toFixed(1);
+      var coreIncome = coreItems.map(tuple => tuple[0]).reduce((memo, value) => memo + value).toFixed(1);
+      
+      // Calculate costs
+      var shards = find("#shard-count").value;
+      var cores = find("#core-count").value;
+      // Calculate durations
+      var shardDays = (shards / shardIncome).toFixed(2);
+      var coreDays = (cores / coreIncome).toFixed(2);
 
-        shardItems.sort(compareUpdateItem);
-        coreItems.sort(compareUpdateItem);
+      // Set the content
+      find("#shard-income").innerHTML = shardIncome;
+      find("#shard-days").innerHTML = shardDays;
+      find("#shard-list").replaceChildren(...shardItems.map(item => newElement("li", item[0]+" "+item[1])));
+      find("#core-income").innerHTML = coreIncome;
+      find("#core-days").innerHTML = coreDays;
+      find("#core-list").replaceChildren(...coreItems.map(item => newElement("li", item[0]+" "+item[1])));
+    };
 
-        var shardCount = shardItems.map(tuple => tuple[0]).reduce((memo, value) => memo + value).toFixed(1);
-        var shard30Rate = Math.round(3750.0 / shardCount);
-        var coreCount = coreItems.map(tuple => tuple[0]).reduce((memo, value) => memo + value).toFixed(1);
-        var core41Rate = Math.round(1650.0 / coreCount);
-        var core60Rate = Math.round(4500.0 / coreCount);
+    // LOCAL STORAGE
+    lib.readLocal = (key)  => {
+      const localStorage = window.localStorage;
+      if (localStorage) {
+        return JSON.parse(localStorage.getItem(key));
+      } else {
+        window.console.warn("No local storage.");
+      }
+    };
+    lib.writeLocal = (key, value)  => {
+      const localStorage = window.localStorage;
+      if (localStorage) {
+        window.console.log("Writing: " + JSON.stringify(value));
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    };
 
-        find("#shard-summary").innerHTML = "e30 per "+shard30Rate+" days<br/>"+shardCount+" Shards per day";
-        find("#shard-list").replaceChildren(...shardItems.map(item => newElement("li", item[0]+" "+item[1])));
+    // INIT
+    lib.init = () => {
+      select("input").forEach(element => element.on(["change", "keyup"], lib.update));
+      select("select").forEach(element => element.on("change", lib.update));
+    };
 
-        find("#core-summary").innerHTML = "e41 per "+core41Rate+" days, e60 per "+core60Rate+" days<br/>"+coreCount+" cores per day";
-        find("#core-list").replaceChildren(...coreItems.map(item => newElement("li", item[0]+" "+item[1])));
-      };
-
-      // LOCAL STORAGE
-      lib.readLocal = (key)  => {
-        const localStorage = window.localStorage;
-        if (localStorage) {
-          return JSON.parse(localStorage.getItem(key));
-        } else {
-          window.console.warn("No local storage.");
-        }
-      };
-      lib.writeLocal = (key, value)  => {
-        const localStorage = window.localStorage;
-        if (localStorage) {
-          window.console.log("Writing: " + JSON.stringify(value));
-          localStorage.setItem(key, JSON.stringify(value));
-        }
-      };
-
-      // INIT
-      lib.init = () => {
-        select("#cost-calculator input").forEach(element => element.on(["change", "keyup"], lib.updateCost));
-        select("#income-calculator select").forEach(element => element.on("change", lib.updateIncome));
-      };
-
-      // Return the helper object
-      return lib;
-    })();
+    // Return the helper object
+    return lib;
+  })();
   </script>
 </head>
 
 <body onLoad="app.init();" width="100%">
   <div class="pure-g">
     <!-- CALCULATORS -->
-    <div class="pure-u-1-2">
+    <div class="pure-u-lg-1-2 pure-u-1">
       <div class="pure-g">
-        <div class="pure-u-1">
-          <h4>Cost Calculator</h4>
-          <form class="pure-form" id="cost-calculator">
-            From e<input type="number" id="cost-start" min="0" max="100" value="0" />
-            to e<input type="number" id="cost-end" min="0" max="100" value="60" />
-            is <span id="cost-shards">3750 Shards</span>
-            and <span id="cost-cores">4500 Cores</span>.
-          </form>
-          <i>NOTE: This calculator is currently using a naive progression that assumes all major nodes are done before
-            minor. It will be updated to intelligently calculate major/minor breakpoints.</i>
-        </div>
+        <!-- CALCULATORS / INCOME -->
         <div class="pure-u-1">
           <h4>Income Calculator</h4>
           <form class="pure-form" id="income-calculator">
@@ -212,12 +175,21 @@
               <legend>Free to Play</legend>
               <div class="pure-g">
                 <div class="pure-u-1-3">
-                  <label for="shard-purchases">Shard Purchases</label><br />
+                  <label for="shard-purchases">Store - Shards</label><br />
                   <select id="shard-purchases" class="pure-input-1-2">
                     <option value="0s">0</option>
                     <option value="20s">1</option>
                     <option value="40s">2</option>
                     <option value="60s" selected>3</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="core-purchases">Store - Cores</label><br />
+                  <select id="core-purchases" class="pure-input-1-2">
+                    <option value="0c" selected>0</option>
+                    <option value="10c">1</option>
+                    <option value="20c">2</option>
+                    <option value="30c">3</option>
                   </select>
                 </div>
                 <div class="pure-u-1-3">
@@ -235,7 +207,7 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="misty-valley-shards">Misty Valley Shards</label><br />
+                  <label for="misty-valley-shards">Misty Valley - Shards</label><br />
                   <select id="misty-valley-shards" class="pure-input-1-2">
                     <option value="0s" selected>0</option>
                     <option value="3.333s">1</option>
@@ -244,23 +216,7 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="core-purchases">Core Purchases</label><br />
-                  <select id="core-purchases" class="pure-input-1-2">
-                    <option value="0c" selected>0</option>
-                    <option value="10c">1</option>
-                    <option value="20c">2</option>
-                    <option value="30c">3</option>
-                  </select>
-                </div>
-                <div class="pure-u-1-3">
-                  <label for="dismal-lab">Dismal Lab</label><br />
-                  <select id="dismal-lab" class="pure-input-1-2">
-                    <option value="35s,35c" selected>Yes</option>
-                    <option value="0">No</option>
-                  </select>
-                </div>
-                <div class="pure-u-1-3">
-                  <label for="misty-valley-cores">Misty Valley Cores</label><br />
+                  <label for="misty-valley-cores">Misty Valley - Cores</label><br />
                   <select id="misty-valley-cores" class="pure-input-1-2">
                     <option value="0c">0</option>
                     <option value="6.666c">1</option>
@@ -268,6 +224,15 @@
                     <option value="20c" selected>3</option>
                   </select>
                 </div>
+                <div class="pure-u-1-3">
+                  <label for="dismal-lab">Dismal Lab</label><br />
+                  <select id="dismal-lab" class="pure-input-1-2">
+                    <option value="35s,35c" selected>Yes</option>
+                    <option value="0s,0c">No</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">&nbsp;</div>
+                <div class="pure-u-1-3">&nbsp;</div>
                 <div class="pure-u-1-3">
                   <label for="cursed-realm">Cursed Realm</label><br />
                   <select id="cursed-realm" class="pure-input-1-2">
@@ -300,16 +265,6 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="noble-society-shards">Noble Society (Shards)</label><br />
-                  <select id="noble-society-shards" class="pure-input-1-2">
-                    <option value="0s" selected>No</option>
-                    <option value="27s">Free</option>
-                    <option value="116s">Paid</option>
-                    <option value="89s">Deluxe</option>
-                  </select>
-                </div>
-                <div class="pure-u-1-3">&nbsp;</div>
-                <div class="pure-u-1-3">
                   <label for="deluxe-monthly-card">Deluxe Monthly Card</label><br />
                   <select id="deluxe-monthly-card" class="pure-input-1-2">
                     <option value="0c" selected>No</option>
@@ -317,8 +272,18 @@
                     <option value="24c">VIP &gt;= 12</option>
                   </select>
                 </div>
+                <div class="pure-u-1-3">&nbsp;</div>
                 <div class="pure-u-1-3">
-                  <label for="noble-society-cores">Noble Society (Cores)</label><br />
+                  <label for="noble-society-shards">Noble Society - Shards</label><br />
+                  <select id="noble-society-shards" class="pure-input-1-2">
+                    <option value="0s" selected>No</option>
+                    <option value="27s">Free</option>
+                    <option value="116s">Paid</option>
+                    <option value="89s">Deluxe</option>
+                  </select>
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="noble-society-cores">Noble Society - Cores</label><br />
                   <select id="noble-society-cores" class="pure-input-1-2">
                     <option value="0c" selected>No</option>
                     <option value="16c">Free</option>
@@ -335,38 +300,38 @@
           <div class="pure-g">
             <!-- RESULTS / SHARDS -->
             <div class="pure-u-1-2">
-              <h4>Shards</h4>
+              <h5>Shards</h5>
               <div id="shard-summary">
-                e30 per 27 days<br/>
-                137.5 Shards per day
+                <span id="shard-income">137.5</span> Shards per day<br/>
+                <input type="number" id="shard-count" value="3750" style="width:65px"> Shards in <span id="shard-days">27.27</span> days
               </div>
               <ul id="shard-list">
-                <li>60 Shard Purchases</li>
+                <li>60 Store - Shards</li>
                 <li>35 Dismal Lab</li>
                 <li>30 Idle</li>
                 <li>12.5 Fast Forwards</li>
                 <li>0 Cursed Realm</li>
-                <li>0 Misty Valley Shards</li>
+                <li>0 Misty Valley - Shards</li>
                 <li>0 Monthly Card</li>
-                <li>0 Noble Society (Shards)</li>
+                <li>0 Noble Society - Shards</li>
               </ul>
             </div>
             <!-- RESULTS / CORES -->
             <div class="pure-u-1-2">
-              <h4>Cores</h4>
+              <h5>Cores</h5>
               <div id="core-summary">
-                e41 per 21 days, e60 per 58 days<br/>
-                77.45 cores per day
+                <span id="core-income">77.5</span> Cores per day<br/>
+                <input type="number" id="core-count" value="4500" style="width:65px"> Cores in <span id="core-days">58.06</span> days
               </div>
               <ul id="core-list">
                 <li>35 Dismal Lab</li>
-                <li>20 Misty Valley Cores</li>
+                <li>20 Misty Valley - Cores</li>
                 <li>16.2 Idle</li>
                 <li>6.25 Fast Forwards</li>
-                <li>0 Core Purchases</li>
                 <li>0 Cursed Realm</li>
                 <li>0 Deluxe Monthly Card</li>
-                <li>0 Noble Society (Cores)</li>
+                <li>0 Noble Society - Cores</li>
+                <li>0 Store - Cores</li>
               </ul>
             </div>
           </div>
@@ -375,20 +340,9 @@
     </div>
 
     <!-- COSTS -->
-    <div class="pure-u-1-2">
+    <div class="pure-u-lg-1-2 pure-u-1">
       <div class="pure-g">
-        <div class="pure-u-1">
-          <h4>Credits</h4>
-          <p>
-            Thanks to <a href="https://www.reddit.com/user/inSeason/">inSeason</a>
-            and <a href="https://www.afk-analytica.com/">AFK Analytica</a> for all of their contributions to the game</a>.
-          </p>
-          <p>
-            All data for this utility sourced from the 
-            <a href="https://www.reddit.com/r/afkarena/comments/rzp6ws/aa_engraving_income_ref_inseas0n_v180/"
-              >[AA] Engraving Income Ref. - inSeas0n- v1.80</a> Reddit post.
-          </p>
-        </div>
+        <!-- COSTS / COMMON BENCHMARK-->
         <div class="pure-u-1-2">
           <h4>Common Benchmark Costs</h4>
           <table class="pure-table pure-table-striped">
@@ -443,7 +397,7 @@
             </tbody>
           </table>
         </div>
-
+        <!-- COSTS / GLYPH COSTS -->
         <div class="pure-u-1-3">
           <h4>Major Glyph Costs</h4>
           <table class="pure-table pure-table-striped">
@@ -594,6 +548,21 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+      <!-- CREDITS -->
+      <div class="pure-g">
+        <div class="pure-u-1">
+          <h4>Credits</h4>
+          <p>
+            Thanks to <a href="https://www.reddit.com/user/inSeason/">inSeason</a>
+            and <a href="https://www.afk-analytica.com/">AFK Analytica</a> for all of their contributions to the game</a>.
+          </p>
+          <p>
+            All data for this utility sourced from the 
+            <a href="https://www.reddit.com/r/afkarena/comments/rzp6ws/aa_engraving_income_ref_inseas0n_v180/"
+              >[AA] Engraving Income Ref. - inSeas0n- v1.80</a> Reddit post.
+          </p>
         </div>
       </div>
     </div>
