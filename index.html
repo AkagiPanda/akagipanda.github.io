@@ -6,16 +6,105 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <link rel="icon" type="image/png" href="favicon.png">
+
   <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css"
     integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5" crossorigin="anonymous">
   <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/grids-responsive-min.css">
 
   <style>
     body {
-      padding: 1em;
+      background-color: #333;
+      color: #ccc;
     }
+
+    a,
+    a:visited {
+      color: #a21B8B;
+      font-weight: bold;
+    }
+
+    a:hover {
+      color: #c23BaB;
+      font-weight: bold;
+    }
+
     td {
       vertical-align: top;
+    }
+
+    input,
+    .pure-form select {
+      background-color: #666;
+      border: 1px solid #777;
+      color: #ccc;
+    }
+
+    input,
+    .pure-form select,
+    .pure-table thead {
+      color: #ccc;
+    }
+
+    .pure-g > div {
+        box-sizing: border-box;
+    }
+    .l-box {
+        padding: 1em;
+    }
+
+    #core-days,
+    #shard-days {
+      font-weight: bold;
+      color: #62a7f5;
+    }
+
+    #core-income {
+      font-weight: bold;
+      color: #cc0000;
+    }
+
+    #shard-income {
+      font-weight: bold;
+      color: #ff9933;
+    }
+
+    .cores {
+      color: #cc0000;
+      margin-block-start: 0.5em;
+      margin-block-end: 0.5em;
+    }
+
+    .shards {
+      color: #ff9933;
+      margin-block-start: 0.5em;
+      margin-block-end: 0.5em;
+    }
+
+    h4 {
+      color: #4778a0;
+    }
+
+    h4.title {
+      color: #60c689;
+      font-size: 120%;
+    }
+
+    .pure-form legend {
+      color: #4778a0;
+      font-weight: 900;
+    }
+
+    .pure-table thead {
+      background-color: #222;
+    }
+
+    .pure-table-striped tr:nth-child(2n) td {
+      background-color: #444;
+    }
+
+    .pure-table-striped tr:nth-child(2n-1) td {
+      background-color: #666;
     }
 
     @media screen and (min-width: 0em) {
@@ -97,7 +186,7 @@
     lib.update = () => {
       // Calculate income
       var shardItems = [[30, "Idle"]];
-      var coreItems = [[16.2, "Idle"]];
+      var coreItems = [[15, "Idle"]];
       select("#income-calculator select").forEach(element => {
         var name = find("[for='"+element.id+"']").innerHTML;
         
@@ -112,8 +201,11 @@
           }
         });
       });
+      shardItems.push([parseFloat(find("#custom-shards").value), "Custom Shards / Day"]);
+      coreItems.push([parseFloat(find("#custom-cores").value), "Custom Cores / Day"]);
       shardItems.sort(compareUpdateItem);
       coreItems.sort(compareUpdateItem);
+
       var shardIncome = shardItems.map(tuple => tuple[0]).reduce((memo, value) => memo + value).toFixed(1);
       var coreIncome = coreItems.map(tuple => tuple[0]).reduce((memo, value) => memo + value).toFixed(1);
       
@@ -165,14 +257,69 @@
 <body onLoad="app.init();" width="100%">
   <div class="pure-g">
     <!-- CALCULATORS -->
-    <div class="pure-u-lg-1-2 pure-u-1">
+    <div class="pure-u-lg-1-2 pure-u-1 l-box">
       <div class="pure-g">
+        <!-- TITLE -->
+        <div class="pure-u-1">
+          <h4 class="title">AFK Engravings Calculator by AkagiPanda - v0.2 (2022-01-25)</h4>
+        </div>
+        <!-- RESULTS -->
+        <div class="pure-u-1">
+          <div class="pure-g">
+            <div class="pure-u-1">
+              <form class="pure-form">
+                <fieldset>
+                  <legend>Calculator</legend>
+                  <i>The Free To Play and Purchased Sources sections can be changed to updated the calculated Shards and Cores per day.</i>
+                </fieldset>
+              </form>
+            </div>
+
+            <!-- RESULTS / SHARDS -->
+            <div class="pure-u-1-2">
+              <h4 class="shards">Shards</h5>
+              <div id="shard-summary">
+                <input type="number" id="shard-count" value="3750" style="width:65px"> Shards in <span id="shard-days">27.27</span> days<br/>
+                based on <span id="shard-income">137.5</span> Shards per day
+              </div>
+              <ul id="shard-list">
+                <li>60 Store - Shards</li>
+                <li>35 Dismal Lab</li>
+                <li>30 Idle</li>
+                <li>12.5 Fast Forwards</li>
+                <li>0 Cursed Realm</li>
+                <li>0 Misty Valley - Shards</li>
+                <li>0 Monthly Card</li>
+                <li>0 Noble Society - Shards</li>
+                <li>0 Custom Shards / Day</li>
+              </ul>
+            </div>
+            <!-- RESULTS / CORES -->
+            <div class="pure-u-1-2">
+              <h4 class="cores">Cores</h4>
+              <div id="core-summary">
+                <input type="number" id="core-count" value="4500" style="width:65px"> Cores in <span id="core-days">58.06</span> days<br/>
+                based on <span id="core-income">76.3</span> Cores per day
+              </div>
+              <ul id="core-list">
+                <li>35 Dismal Lab</li>
+                <li>20 Misty Valley - Cores</li>
+                <li>15 Idle</li>
+                <li>6.25 Fast Forwards</li>
+                <li>0 Cursed Realm</li>
+                <li>0 Deluxe Monthly Card</li>
+                <li>0 Noble Society - Cores</li>
+                <li>0 Store - Cores</li>
+                <li>0 Custom Cores / Day</li>
+              </ul>
+            </div>
+          </div>
+        </div>
         <!-- CALCULATORS / INCOME -->
         <div class="pure-u-1">
-          <h4>AFK Engravings Calculator by AkagiPanda - v0.1 (2022-01-11)</h4>
           <form class="pure-form" id="income-calculator">
             <fieldset>
-              <legend>Free to Play</legend>
+              <legend>Free to Play Sources</legend>
               <div class="pure-g">
                 <div class="pure-u-1-3">
                   <label for="shard-purchases">Store - Shards</label><br />
@@ -231,8 +378,14 @@
                     <option value="0s,0c">No</option>
                   </select>
                 </div>
-                <div class="pure-u-1-3">&nbsp;</div>
-                <div class="pure-u-1-3">&nbsp;</div>
+                <div class="pure-u-1-3">
+                  <label for="dismal-lab" style="font-style: italic;">Custom Shards / Day</label><br />
+                  <input type="number" id="custom-shards" value="0" style="width:50%;">
+                </div>
+                <div class="pure-u-1-3">
+                  <label for="dismal-lab" style="font-style: italic;">Custom Cores / Day</label><br />
+                  <input type="number" id="custom-cores" value="0" style="width:50%;">
+                </div>
                 <div class="pure-u-1-3">
                   <label for="cursed-realm">Cursed Realm</label><br />
                   <select id="cursed-realm" class="pure-input-1-2">
@@ -254,7 +407,7 @@
                   </select>
                 </div>
               </div>
-              <legend>Purchased</legend>
+              <legend>Purchased Sources</legend>
               <div class="pure-g">
                 <div class="pure-u-1-3">
                   <label for="monthly-card">Monthly Card</label><br />
@@ -295,52 +448,11 @@
             </fieldset>
           </form>
         </div>
-        <!-- RESULTS -->
-        <div class="pure-u-1">
-          <div class="pure-g">
-            <!-- RESULTS / SHARDS -->
-            <div class="pure-u-1-2">
-              <h5>Shards</h5>
-              <div id="shard-summary">
-                <span id="shard-income">137.5</span> Shards per day<br/>
-                <input type="number" id="shard-count" value="3750" style="width:65px"> Shards in <span id="shard-days">27.27</span> days
-              </div>
-              <ul id="shard-list">
-                <li>60 Store - Shards</li>
-                <li>35 Dismal Lab</li>
-                <li>30 Idle</li>
-                <li>12.5 Fast Forwards</li>
-                <li>0 Cursed Realm</li>
-                <li>0 Misty Valley - Shards</li>
-                <li>0 Monthly Card</li>
-                <li>0 Noble Society - Shards</li>
-              </ul>
-            </div>
-            <!-- RESULTS / CORES -->
-            <div class="pure-u-1-2">
-              <h5>Cores</h5>
-              <div id="core-summary">
-                <span id="core-income">77.5</span> Cores per day<br/>
-                <input type="number" id="core-count" value="4500" style="width:65px"> Cores in <span id="core-days">58.06</span> days
-              </div>
-              <ul id="core-list">
-                <li>35 Dismal Lab</li>
-                <li>20 Misty Valley - Cores</li>
-                <li>16.2 Idle</li>
-                <li>6.25 Fast Forwards</li>
-                <li>0 Cursed Realm</li>
-                <li>0 Deluxe Monthly Card</li>
-                <li>0 Noble Society - Cores</li>
-                <li>0 Store - Cores</li>
-              </ul>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
     <!-- COSTS -->
-    <div class="pure-u-lg-1-2 pure-u-1">
+    <div class="pure-u-lg-1-2 pure-u-1 l-box">
       <div class="pure-g">
         <!-- COSTS / COMMON BENCHMARK-->
         <div class="pure-u-1-2">
