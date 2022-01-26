@@ -38,6 +38,7 @@
       background-color: #666;
       border: 1px solid #777;
       color: #ccc;
+      margin-bottom: 0.25em;
     }
 
     input,
@@ -45,6 +46,8 @@
     .pure-table thead {
       color: #ccc;
     }
+
+    .pure-form label { margin-top: 1em; }
 
     .pure-g > div {
         box-sizing: border-box;
@@ -107,14 +110,26 @@
       background-color: #666;
     }
 
+    select.pure-input-1-2,
+    #custom-shards,
+    #custom-cores {
+      min-width: 7.5em;
+    }
+
     @media screen and (min-width: 0em) {
       body {
         font-size: 0.8rem;
+      }
+      #core-count, #shard-count {
+        width: 50px;
       }
     }
     @media screen and (min-width: 35.5em) {
       body {
         font-size: 0.8rem;
+      }
+      #core-count, #shard-count {
+        width: 65px;
       }
     }
     @media screen and (min-width: 48em) {
@@ -261,7 +276,7 @@
       <div class="pure-g">
         <!-- TITLE -->
         <div class="pure-u-1">
-          <h4 class="title">AFK Engravings Calculator by AkagiPanda - v0.2 (2022-01-25)</h4>
+          <h4 class="title">AFK Engravings Calculator by AkagiPanda</h4>
         </div>
         <!-- RESULTS -->
         <div class="pure-u-1">
@@ -279,7 +294,7 @@
             <div class="pure-u-1-2">
               <h4 class="shards">Shards</h5>
               <div id="shard-summary">
-                <input type="number" id="shard-count" value="3750" style="width:65px"> Shards in <span id="shard-days">27.27</span> days<br/>
+                <input type="number" id="shard-count" value="3750"> Shards in <span id="shard-days">27.27</span> days<br/>
                 based on <span id="shard-income">137.5</span> Shards per day
               </div>
               <ul id="shard-list">
@@ -298,7 +313,7 @@
             <div class="pure-u-1-2">
               <h4 class="cores">Cores</h4>
               <div id="core-summary">
-                <input type="number" id="core-count" value="4500" style="width:65px"> Cores in <span id="core-days">58.06</span> days<br/>
+                <input type="number" id="core-count" value="4500"> Cores in <span id="core-days">58.06</span> days<br/>
                 based on <span id="core-income">76.3</span> Cores per day
               </div>
               <ul id="core-list">
@@ -322,7 +337,9 @@
               <legend>Free to Play Sources</legend>
               <div class="pure-g">
                 <div class="pure-u-1-3">
-                  <label for="shard-purchases">Store - Shards</label><br />
+                  <div>
+                    <label for="shard-purchases">Store - Shards</label>
+                  </div>
                   <select id="shard-purchases" class="pure-input-1-2">
                     <option value="0s">0</option>
                     <option value="20s">1</option>
@@ -331,7 +348,9 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="core-purchases">Store - Cores</label><br />
+                  <div>
+                    <label for="core-purchases">Store - Cores</label>
+                  </div>
                   <select id="core-purchases" class="pure-input-1-2">
                     <option value="0c" selected>0</option>
                     <option value="10c">1</option>
@@ -340,7 +359,9 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="fast-forwards">Fast Forwards</label><br />
+                  <div>
+                    <label for="fast-forwards">Fast Forwards</label>
+                  </div>
                   <select id="fast-forwards" class="pure-input-1-2">
                     <option value="0s,0c">0</option>
                     <option value="2.5s,1.25c">1</option>
@@ -354,7 +375,9 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="misty-valley-shards">Misty Valley - Shards</label><br />
+                  <div>
+                    <label for="misty-valley-shards">Misty Valley - Shards</label>
+                  </div>
                   <select id="misty-valley-shards" class="pure-input-1-2">
                     <option value="0s" selected>0</option>
                     <option value="6.666s">1</option>
@@ -363,7 +386,9 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="misty-valley-cores">Misty Valley - Cores</label><br />
+                  <div>
+                    <label for="misty-valley-cores">Misty Valley - Cores</label>
+                  </div>
                   <select id="misty-valley-cores" class="pure-input-1-2">
                     <option value="0c">0</option>
                     <option value="3.333c">1</option>
@@ -372,22 +397,30 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="dismal-lab">Dismal Lab</label><br />
+                  <div>
+                    <label for="dismal-lab">Dismal Lab</label>
+                  </div>
                   <select id="dismal-lab" class="pure-input-1-2">
                     <option value="35s,35c" selected>Yes</option>
                     <option value="0s,0c">No</option>
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="dismal-lab" style="font-style: italic;">Custom Shards / Day</label><br />
+                  <div>
+                    <label for="dismal-lab" style="font-style: italic;">Custom Shards / Day</label>
+                  </div>
                   <input type="number" id="custom-shards" value="0" style="width:50%;">
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="dismal-lab" style="font-style: italic;">Custom Cores / Day</label><br />
+                  <div>
+                    <label for="dismal-lab" style="font-style: italic;">Custom Cores / Day</label>
+                  </div>
                   <input type="number" id="custom-cores" value="0" style="width:50%;">
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="cursed-realm">Cursed Realm</label><br />
+                  <div>
+                    <label for="cursed-realm">Cursed Realm</label>
+                  </div>
                   <select id="cursed-realm" class="pure-input-1-2">
                     <option value="0s,0c" selected>No</option>
                     <option value="14s,0c">100%</option>
@@ -410,7 +443,9 @@
               <legend>Purchased Sources</legend>
               <div class="pure-g">
                 <div class="pure-u-1-3">
-                  <label for="monthly-card">Monthly Card</label><br />
+                  <div>
+                    <label for="monthly-card">Monthly Card</label>
+                  </div>
                   <select id="monthly-card" class="pure-input-1-2">
                     <option value="0s" selected>No</option>
                     <option value="45s">VIP &lt; 12</option>
@@ -418,7 +453,9 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="deluxe-monthly-card">Deluxe Monthly Card</label><br />
+                  <div>
+                    <label for="deluxe-monthly-card">Deluxe Monthly Card</label>
+                  </div>
                   <select id="deluxe-monthly-card" class="pure-input-1-2">
                     <option value="0c" selected>No</option>
                     <option value="12c">VIP &lt; 12</option>
@@ -427,7 +464,9 @@
                 </div>
                 <div class="pure-u-1-3">&nbsp;</div>
                 <div class="pure-u-1-3">
-                  <label for="noble-society-shards">Noble Society - Shards</label><br />
+                  <div>
+                    <label for="noble-society-shards">Noble Society - Shards</label>
+                  </div>
                   <select id="noble-society-shards" class="pure-input-1-2">
                     <option value="0s" selected>No</option>
                     <option value="27s">Free</option>
@@ -436,7 +475,9 @@
                   </select>
                 </div>
                 <div class="pure-u-1-3">
-                  <label for="noble-society-cores">Noble Society - Cores</label><br />
+                  <div>
+                    <label for="noble-society-cores">Noble Society - Cores</label>
+                  </div>
                   <select id="noble-society-cores" class="pure-input-1-2">
                     <option value="0c" selected>No</option>
                     <option value="16c">Free</option>
@@ -667,7 +708,7 @@
         <div class="pure-u-1">
           <h4>Credits</h4>
           <p>
-            Thanks to <a href="https://www.reddit.com/user/inSeason/">inSeason</a>
+            Thanks to <a href="https://www.reddit.com/user/inSeason/">inSeason</a>, Gondolin, 
             and <a href="https://www.afk-analytica.com/">AFK Analytica</a> for all of their contributions to the game</a>.
           </p>
           <p>
@@ -675,6 +716,7 @@
             <a href="https://www.reddit.com/r/afkarena/comments/rzp6ws/aa_engraving_income_ref_inseas0n_v180/"
               >[AA] Engraving Income Ref. - inSeas0n- v1.80</a> Reddit post.
           </p>
+          <h5 class="title" style="color: #666;">v0.3 (2022-01-25)</h5>
         </div>
       </div>
     </div>
