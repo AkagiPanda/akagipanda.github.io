@@ -87,10 +87,14 @@
     h4 {
       color: #4778a0;
     }
+    .costs h4 {
+      margin-block-end: 0.25em;
+    }
 
     h4.title {
       color: #60c689;
       font-size: 120%;
+      margin-block-start: 0.75em;
     }
 
     .pure-form legend {
@@ -276,7 +280,7 @@
       <div class="pure-g">
         <!-- TITLE -->
         <div class="pure-u-1">
-          <h4 class="title">AFK Engravings Calculator by AkagiPanda</h4>
+          <h4 class="title"><img src="favicon.png" style="height: 1.5em; width: 1.5em; vertical-align: middle;";/> AFK Engravings Calculator by AkagiPanda</h4>
         </div>
         <!-- RESULTS -->
         <div class="pure-u-1">
@@ -285,7 +289,7 @@
               <form class="pure-form">
                 <fieldset>
                   <legend>Calculator</legend>
-                  <i>The Free To Play and Purchased Sources sections can be changed to updated the calculated Shards and Cores per day.</i>
+                  <i style="font-size: 0.8em;">The Free To Play and Purchased Sources sections can be changed to updated the calculated Shards and Cores per day.</i>
                 </fieldset>
               </form>
             </div>
@@ -294,16 +298,16 @@
             <div class="pure-u-1-2">
               <h4 class="shards">Shards</h5>
               <div id="shard-summary">
-                <input type="number" id="shard-count" value="3750"> Shards in <span id="shard-days">27.27</span> days<br/>
-                based on <span id="shard-income">137.5</span> Shards per day
+                <input type="number" id="shard-count" value="3750"> Shards in <span id="shard-days">25.95</span> days<br/>
+                based on <span id="shard-income">144.5</span> Shards per day
               </div>
               <ul id="shard-list">
                 <li>60 Store - Shards</li>
                 <li>35 Dismal Lab</li>
                 <li>30 Idle</li>
                 <li>12.5 Fast Forwards</li>
+                <li>7 Custom Shards / Day</li>
                 <li>0 Cursed Realm</li>
-                <li>0 Custom Shards / Day</li>
                 <li>0 Misty Valley - Shards</li>
                 <li>0 Monthly Card</li>
                 <li>0 Noble Society - Shards</li>
@@ -313,16 +317,16 @@
             <div class="pure-u-1-2">
               <h4 class="cores">Cores</h4>
               <div id="core-summary">
-                <input type="number" id="core-count" value="4500"> Cores in <span id="core-days">58.06</span> days<br/>
-                based on <span id="core-income">76.3</span> Cores per day
+                <input type="number" id="core-count" value="4500"> Cores in <span id="core-days">64.94</span> days<br/>
+                based on <span id="core-income">69.3</span> Cores per day
               </div>
               <ul id="core-list">
                 <li>35 Dismal Lab</li>
                 <li>15 Idle</li>
                 <li>10 Misty Valley - Cores</li>
                 <li>6.25 Fast Forwards</li>
+                <li>3 Custom Cores / Day</li>
                 <li>0 Cursed Realm</li>
-                <li>0 Custom Cores / Day</li>
                 <li>0 Deluxe Monthly Card</li>
                 <li>0 Noble Society - Cores</li>
                 <li>0 Store - Cores</li>
@@ -407,15 +411,15 @@
                 </div>
                 <div class="pure-u-1-3">
                   <div>
-                    <label for="dismal-lab" style="font-style: italic;">Custom Shards / Day</label>
+                    <label for="dismal-lab" style="color: #777;font-style: italic;">Custom Shards / Day</label>
                   </div>
-                  <input type="number" id="custom-shards" value="0" style="width:50%;">
+                  <input type="number" id="custom-shards" step="0.1" value="7" style="width:50%;">
                 </div>
                 <div class="pure-u-1-3">
                   <div>
-                    <label for="dismal-lab" style="font-style: italic;">Custom Cores / Day</label>
+                    <label for="dismal-lab" style="color: #777;font-style: italic;">Custom Cores / Day</label>
                   </div>
-                  <input type="number" id="custom-cores" value="0" style="width:50%;">
+                  <input type="number" id="custom-cores" step="0.1" value="3" style="width:50%;">
                 </div>
                 <div class="pure-u-1-3">
                   <div>
@@ -438,6 +442,9 @@
                     <option value="57s,37c">2%</option>
                     <option value="57s,43c">1%</option>
                   </select>
+                </div>
+                <div class="pure-u-1">
+                  <i style="font-size: 0.7em;">The <span style="color: #777;">Custom Shards / Day </span> and <span style="color: #777;">Custom Cores / Day </span> / day can be used to apply any aquisition specific to your account (such as occasional purchases or exchange events).  The default values are the approximate rates from Voyage of Wonder (calculated by averaging the last 10 cycles).</i>
                 </div>
               </div>
               <legend>Purchased Sources</legend>
@@ -493,7 +500,7 @@
     </div>
 
     <!-- COSTS -->
-    <div class="pure-u-lg-1-2 pure-u-1 l-box">
+    <div class="pure-u-lg-1-2 pure-u-1 l-box costs">
       <div class="pure-g">
         <!-- COSTS / COMMON BENCHMARK-->
         <div class="pure-u-1-2">
@@ -716,6 +723,11 @@
             <a href="https://www.reddit.com/r/afkarena/comments/rzp6ws/aa_engraving_income_ref_inseas0n_v180/"
               >[AA] Engraving Income Ref. - inSeas0n- v1.80</a> Reddit post.
           </p>
+        </div>
+        <div class="pure-u-1-2">
+          <h5 class="title" style="color: #666;">Powered by Sprouts <img src="sprouts-logo-smaller.png" style="height: 1.5em; width: 1.5em; vertical-align: middle;";/></h5>
+        </div>
+        <div class="pure-u-1-2" style="text-align: right;">
           <h5 class="title" style="color: #666;">v0.3 (2022-01-25)</h5>
         </div>
       </div>
